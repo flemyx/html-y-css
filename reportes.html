@@ -3,32 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fundaproal Inventario</title>
+    <title>Reportes</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Formulario de login -->
-    <div class="login-container">
-        <div class="login-window">
-            <h2>Iniciar Sesión</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Usuario</label>
-                    <input type="text" id="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" required>
-                </div>
-                <div class="form-group">
-                    <label for="isAdmin">Administrador</label>
-                    <input type="checkbox" id="isAdminCheckbox" name="isAdmin">
-                </div>
-                <button type="submit">Ingresar</button>
-            </form>
-        </div>
-    </div>
-    <!-- Ventana principal -->
     <div class="mainwindow" style="display: none;">
         <header class="header">
             <nav class="navbar">
@@ -52,14 +30,14 @@
                     <li class="dropdown">
                         <a href="#" class="module-link">Existencias</a>
                         <ul class="dropdown-content">
-                            <li><a href="almacenes.html" target="_blank">Almacen</a></li>
+                            <li><a href="#existencias" class="submenu-link">Almacen</a></li>
                             <li><a href="#existencias" class="submenu-link">Productos</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="module-link">Reportes</a>
                         <ul class="dropdown-content">
-                            <li><a href="reportes.html">Despachos</a></li>
+                            <li><a href="reportes.html" class="submenu-link">Despachos</a></li>
                             <li><a href="#reportes_solicitudes" class="submenu-link">Solicitudes</a></li>
                         </ul>
                     </li>
@@ -148,14 +126,28 @@
         </main>
     </div>
 
-    <script src="script.js"></script>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Ubicación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <!-- Las filas se llenarán dinámicamente con los datos de la API -->
+        </tbody>
+    </table>
+
+    <button onclick="window.location.href='index.html'">Regresar</button>
 
     <script>
-        // Código de inicialización de la aplicación
-        fetch('http://localhost:3000/casas_alimentacion', {
+        // Realiza una solicitud GET a la API
+        fetch('http://localhost:3000/almacenes', {
             method: 'GET', // Método HTTP
             headers: {
-                'Content-Type': 'application/json' // Tipo de contenido que estás esperando
+                'Content-Type': 'application/json' // Tipo de contenido que estamos esperando
                 // 'Authorization': 'Bearer token' // Si necesitas pasar un token de autorización
             }
         })
@@ -163,14 +155,66 @@
                 if (!response.ok) {
                     throw new Error('Error en la respuesta de la API');
                 }
-                return response.json(); // Convertir la respuesta en JSON
+                return response.json(); // Convertir la respuesta en formato JSON
             })
             .then(data => {
-                console.log(data); // Aquí manejarías los datos recibidos
+                // Llamamos a la función para llenar la tabla con los datos
+                populateTable(data);
             })
             .catch(error => {
                 console.error('Error en la solicitud GET:', error); // Manejo de errores
             });
+
+        // Función para llenar la tabla con los datos obtenidos de la API
+        function populateTable(data) {
+            const tbody = document.getElementById('tbody');
+            // Limpiar el contenido previo del tbody
+            tbody.innerHTML = '';
+
+            // Iterar sobre los datos y agregar cada almacén como una fila en la tabla
+            data.forEach(almacen => {
+                console.log(almacen);
+                const tr = document.createElement('tr');
+
+                const tdId = document.createElement('td');
+                tdId.textContent = almacen.codigo_alm;
+
+                const tdNombre = document.createElement('td');
+                tdNombre.textContent = almacen.nombre_alm;
+
+                const tdUbicacion = document.createElement('td');
+                tdUbicacion.textContent = almacen.direccion_alm;
+
+                const tdAcciones = document.createElement('td');
+                const btnEditar = document.createElement('button');
+                btnEditar.textContent = 'Editar';
+                btnEditar.onclick = () => editAlmacen(almacen.id); // Función para editar
+                const btnEliminar = document.createElement('button');
+                btnEliminar.textContent = 'Eliminar';
+                btnEliminar.onclick = () => deleteAlmacen(almacen.id); // Función para eliminar
+
+                tdAcciones.appendChild(btnEditar);
+                tdAcciones.appendChild(btnEliminar);
+
+                tr.appendChild(tdId);
+                tr.appendChild(tdNombre);
+                tr.appendChild(tdUbicacion);
+                tr.appendChild(tdAcciones);
+
+                tbody.appendChild(tr); // Agregar la fila al tbody
+            });
+        }
+
+        // Función de ejemplo para editar un almacén
+        function editAlmacen(id) {
+            alert(`Editar almacén con ID: ${id}`);
+        }
+
+        // Función de ejemplo para eliminar un almacén
+        function deleteAlmacen(id) {
+            alert(`Eliminar almacén con ID: ${id}`);
+        }
     </script>
+
 </body>
 </html>
